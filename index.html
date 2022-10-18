@@ -4,95 +4,221 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <script src="index.js"></script>
-    <script
-      defer
-      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
-      integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"
-      integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk"
-      crossorigin="anonymous"
-    ></script>
-    <title>Auth App with AlpineJs</title>
+    <link
+      href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+
+    <!-- page title -->
+    <title>Alpine SignUp</title>
   </head>
 
   <body>
-    <div id="fb-root"></div>
-    <script
-      async
-      defer
-      crossorigin="anonymous"
-      src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v15.0&appId=506092741548214&autoLogAppEvents=1"
-      nonce="NM0pmR3R"
-    ></script>
+    <!-- body starts-->
+    <div
+      class="bg-gray-200 relative min-h-screen antialiased border-t-8 border-black"
+    >
+      <div class="max-w-sm mx-auto px-6" x-data="getData()">
+        <!-- modal starts -->
+        <!-- modal ends -->
 
-    <div class="bg-gray-200 h-screen">
-      <div class="container mx-auto w-full h-full">
+        <!-- form container starts -->
         <div
-          class="max-w-screen-sm mx-auto w-full h-full flex flex-col items-center justify-center"
+          x-show.transition="!status && !isError"
+          class="relative h-screen flex flex-wrap items-center"
         >
-          <div class="bg-white p-5 shadow-md w-full">
-            <h1 class="text-gray-900 mb-8">Form Validation</h1>
-            <form
-              method="POST"
-              x-data="validateForm()"
-              x-init="
-              $watch('fullname', value => { validate('fullname') })
-              $watch('email', value => { validate('email') })
-              $watch('password', value => { validate('password') })
-            "
-              class="flex flex-col space-y-4"
-            >
-              <div class="flex flex-col space-y-2">
-                <label for="name">Full Name</label>
-                <input
-                  type="text"
-                  x-model="fullname"
-                  class="px-2 py-1 border rounded-md focus:outline-none focus:border-blue-400"
-                  placeholder="Enter your full name..."
-                />
-                <span class="text-sm italic text-red-500">
-                  <div x-text="validation.fullname.message"></div>
-                </span>
+          <div class="w-full relative">
+            <div class="mt-6">
+              <div class="text-center font-semibold text-black text-2xl">
+                Register for event here
               </div>
-              <div class="flex flex-col space-y-2">
-                <label for="email">Email</label>
-                <input
-                  type="email"
-                  x-model="email"
-                  class="px-2 py-1 border rounded-md focus:outline-none focus:border-blue-400"
-                  placeholder="Enter your email address..."
-                />
-                <span class="text-sm italic text-red-500">
-                  <div x-text="validation.email.message"></div>
-                </span>
-              </div>
-              <div class="flex flex-col space-y-2">
-                <label for="password">Password</label>
-                <input
-                  type="password"
-                  x-model="password"
-                  class="px-2 py-1 border rounded-md focus:outline-none focus:border-blue-400"
-                  placeholder="Enter your password..."
-                />
-                <span class="text-sm italic text-red-500">
-                  <div x-text="validation.password.message"></div>
-                </span>
-              </div>
-              <div class="flex flex-row-reverse">
-                <button
-                  class="px-2 py-1 uppercase border bg-gray-200 text-gray-900"
-                >
-                  SignIn
-                </button>
-                <div class="auth">
+              <!-- registration form starts-->
+              <form
+                action="/register"
+                method="POST"
+                class="mt-8"
+                @submit.prevent="submitData"
+              >
+                <div class="mx-auto max-w-lg">
+                  <div class="py-1">
+                    <span class="px-1 text-sm text-gray-600">Email</span>
+                    <input
+                      placeholder=""
+                      type="text"
+                      x-model="formData.email"
+                      class="text-md block px-3 py-2 rounded-lg w-full bg-white border-2 border-gray-300 placeholder-gray-600 shadow-md focus:placeholder-gray-500 focus:bg-white focus:border-gray-600 focus:outline-none"
+                    />
+                  </div>
+
+                  <div class="py-1">
+                    <span class="px-1 text-sm text-gray-600">Password</span>
+                    <input
+                      placeholder=""
+                      type="password"
+                      x-model="formData.password"
+                      class="text-md block px-3 py-2 rounded-lg w-full bg-white border-2 border-gray-300 placeholder-gray-600 shadow-md focus:placeholder-gray-500 focus:bg-white focus:border-gray-600 focus:outline-none"
+                    />
+                  </div>
+
+                  <div class="py-1">
+                    <span class="px-1 text-sm text-gray-600"
+                      >Confirm Password
+                    </span>
+                    <input
+                      placeholder=""
+                      type="password"
+                      x-model="formData.password_confirm"
+                      class="text-md block px-3 py-2 rounded-lg w-full bg-white border-2 border-gray-300 placeholder-gray-600 shadow-md focus:placeholder-gray-500 focus:bg-white focus:border-gray-600 focus:outline-none"
+                    />
+                  </div>
+
+                  <!-- validation starts -->
+                  <div class="flex justify-start mt-3 ml-4 p-1">
+                    <ul>
+                      <!-- Validate Email -->
+                      <li
+                        x-show="formData.email.length > 0"
+                        class="flex items-center py-1"
+                      >
+                        <div
+                          :class="{'bg-green-200 text-green-700': isEmail(formData.email),
+                               'bg-red-200 text-red-700': !isEmail(formData.email)}"
+                          class="rounded-full p-1 fill-current"
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              x-show="isEmail(formData.email)"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 13l4 4L19 7"
+                            />
+                            <path
+                              x-show="!isEmail(formData.email)"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </div>
+                        <span
+                          :class="{'text-green-700': isEmail(formData.email), 
+                                  'text-red-700': !isEmail(formData.email)}"
+                          class="font-medium text-sm ml-3"
+                          x-text="isEmail(formData.email) ? 
+                                'Email is valid' : 'Email is not valid!' "
+                        ></span>
+                      </li>
+
+                      <!-- Validate Password -->
+                      <li
+                        x-show="formData.password.length > 0"
+                        class="flex items-center py-1"
+                      >
+                        <div
+                          :class="{'bg-green-200 text-green-700': formData.password.length > 7,
+                              'bg-red-200 text-red-700':formData.password.length < 8 }"
+                          class="rounded-full p-1 fill-current"
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              x-show="formData.password.length > 7"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 13l4 4L19 7"
+                            />
+                            <path
+                              x-show="formData.password.length < 8"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </div>
+
+                        <span
+                          :class="{'text-green-700': formData.password.length > 7, 
+                                'text-red-700':formData.password.length < 8 }"
+                          class="font-medium text-sm ml-3"
+                          x-text="formData.password.length > 7 ? 
+                                'The minimum length is reached' : 
+                                'At least 8 characters required' "
+                        ></span>
+                      </li>
+
+                      <!-- Validate Password Confirm -->
+                      <li
+                        x-show="formData.password_confirm > 0"
+                        class="flex items-center py-1"
+                      >
+                        <div
+                          :class="{'bg-green-200 text-green-700': 
+                              formData.password === formData.password_confirm, 
+                              'bg-red-200 text-red-700':formData.password !== 
+                              formData.password_confirm}"
+                          class="rounded-full p-1 fill-current"
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              x-show="formData.password === formData.password_confirm"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 13l4 4L19 7"
+                            />
+                            <path
+                              x-show="formData.password !== formData.password_confirm"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </div>
+
+                        <span
+                          :class="{'text-green-700': 
+                                formData.password === formData.password_confirm, 
+                                'text-red-700':formData.password !== formData.password_confirm}"
+                          class="font-medium text-sm ml-3"
+                          x-text="formData.password === formData.password_confirm ? 
+                                'Passwords match' : 'Passwords do not match' "
+                        ></span>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- validation ends -->
+
+                  <button
+                    class="mt-3 text-lg font-semibold bg-gray-800 w-full text-white rounded-lg px-6 py-3 block shadow-xl hover:text-white hover:bg-black"
+                    x-text="buttonLabel"
+                    :disabled="loading"
+                  ></button>
+                  <hr />
+                  <!-- oAuth integration starts -->
+                  <h1>Continue with oAuth</h1>
+                  <button onclick="signInUser()">Login with GitHub</button>
                   <div
                     class="fb-login-button"
                     data-width=""
@@ -102,47 +228,70 @@
                     data-auto-logout-link="true"
                     data-use-continue-as="true"
                   ></div>
-                  <button onClick="{signInWithGoogle}">
-                    Continue with Google
-                  </button>
-                  <button onClick="{signInWithGithub}">
-                    Continue with Github
-                  </button>
-                  <button onClick="{signInWithFacebook}">
-                    Continue with Facebook
-                  </button>
-                  <p>Already have an account? SignIn</p>
+                  <!-- oAuth integration ends -->
                 </div>
-              </div>
-            </form>
+              </form>
+              <!-- registration form ends -->
+            </div>
           </div>
         </div>
+        <!-- form container ends -->
       </div>
     </div>
-  </body>
 
-  <script>
-    window.fbAsyncInit = function () {
-      FB.init({
-        appId: "{your-app-id}",
-        cookie: true,
-        xfbml: true,
-        version: "{api-version}",
-      });
-
-      FB.AppEvents.logPageView();
-    };
-
-    (function (d, s, id) {
-      var js,
-        fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) {
-        return;
+    <script
+      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js"
+      defer
+    ></script>
+    <script>
+      function getData() {
+        return {
+          formData: {
+            email: "",
+            password: "",
+            password_confirm: "",
+          },
+          status: false,
+          loading: false,
+          isError: false,
+          modalHeaderText: "",
+          modalBodyText: "",
+          buttonLabel: "Submit",
+          buttonLabel: "Submit",
+          isEmail(email) {
+            var re = /\S+@\S+\.\S+/;
+            return re.test(email);
+          },
+        };
       }
-      js = d.createElement(s);
-      js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js";
-      fjs.parentNode.insertBefore(js, fjs);
-    })(document, "script", "facebook-jssdk");
-  </script>
+    </script>
+    <!-- body ends-->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyB-Ehfi_71W60I1ogcIioTVbhQDZ6lKfAs",
+        authDomain: "alpinejs-form.firebaseapp.com",
+        projectId: "alpinejs-form",
+        storageBucket: "alpinejs-form.appspot.com",
+        messagingSenderId: "480214010959",
+        appId: "1:480214010959:web:1562cb40bf652433eaee3a",
+        measurementId: "G-C93VN9R1BV",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+
+      function signInUser() {
+        console.log("Signed In");
+      }
+    </script>
+  </body>
 </html>
